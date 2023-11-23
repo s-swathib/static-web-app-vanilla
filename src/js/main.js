@@ -98,16 +98,18 @@ function setupWebRTC() {
     
       // Make necessary update to the web page when the connection state changes
       peerConnection.oniceconnectionstatechange = e => {
-        console.log("WebRTC status: " + peerConnection.iceConnectionState)
-    
-        if (peerConnection.iceConnectionState === 'connected') {
-          greeting()
-          document.getElementById('loginOverlay').classList.add("hidden");
-        }
-    
-        if (peerConnection.iceConnectionState === 'disconnected') {
-        }
+      console.log("WebRTC status: " + peerConnection.iceConnectionState)
+
+      if (peerConnection.iceConnectionState === 'connected') {
+				greeting()
+				document.getElementById('loginOverlay').classList.add("hidden");
       }
+      if (peerConnection.iceConnectionState === 'disconnected') {
+    	// Make necessary update to the web page when the connection state changes
+				document.getElementById('loginOverlay').classList.remove("hidden");
+    		alert("Connection lost. Please refresh the page to reconnect.");
+ 			}
+			};
     
       // Offer to receive 1 audio, and 1 video track
       peerConnection.addTransceiver('video', { direction: 'sendrecv' })
