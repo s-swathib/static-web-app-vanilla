@@ -81,11 +81,23 @@
       <ul id="chathistory" class="chat-history"></ul>
     </div>
   </div>
-
+  
   <div id="loginOverlay">
-    <button id="playVideo" onclick="window.startSession()">
-      <span id="playVideo__text" class="playVideo__text"></span>
-    </button>
+    <div id="gradientOverlay">
+      <div class="loginCard">
+        <div class="loginCard__header">Login</div>
+        
+        <form id="login-form">
+          <input type="text" name="username" id="username-field" class="login-form-field" placeholder="Username">
+          <input type="password" name="password" id="password-field" class="login-form-field" placeholder="Password">
+        </form>
+
+        <button id="playVideo" onclick="window.startSession()">
+          <span id="playVideo__text" class="playVideo__text">Login</span>
+        </button>
+        
+      </div>
+    </div>
   </div>
   
 </body>
