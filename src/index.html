@@ -76,14 +76,19 @@
         </label>
       </fluent-card>
     </div>
-
+    
     <div class="main-block">
       <ul id="chathistory" class="chat-history"></ul>
     </div>
   </div>
   
-  <div class = "playVideo"><button id="playVideo" onclick="window.startSession()"><span id="playVideo__text" class="playVideo__text">Login</span></button></div>
-
+  <div id="loginOverlay">
+    <div id="gradientOverlay">
+        <button id="playVideo" onclick="window.startSession()">
+            <span id="playVideo__text" class="playVideo__text">Login</span>
+        </button>
+    </div>
+  </div>
 </body>
 
 </html>
