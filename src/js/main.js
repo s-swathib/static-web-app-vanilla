@@ -16,15 +16,15 @@ const TTSVoice = "en-US-JennyMultilingualNeural" // Update this value if you wan
 
 const CogSvcRegion = "westus2" // Fill your Azure cognitive services region here, e.g. westus2
 
-const IceServerUrl = "https://communicationservicedep.unitedstates.communication.azure.com" // Fill your ICE server URL here, e.g. turn:turn.azure.com:3478
-let IceServerUsername
-let IceServerCredential
-
 // This is the only avatar which supports live streaming so far, please don't modify
 const TalkingAvatarCharacter = "lisa"
 const TalkingAvatarStyle = "casual-sitting"
 
 supported_languages = ["en-US", "de-DE", "zh-CN", "ar-AE"] // The language detection engine supports a maximum of 4 languages
+
+const IceServerUrl = "https://communicationservicedep.unitedstates.communication.azure.com" // Fill your ICE server URL here, e.g. turn:turn.azure.com:3478
+let IceServerUsername
+let IceServerCredential
 
 const BackgroundColor = '#FFFFFFFF'
 
