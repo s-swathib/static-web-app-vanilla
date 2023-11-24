@@ -95,22 +95,6 @@ function setupWebRTC() {
           window.requestAnimationFrame(makeBackgroundTransparent)
       })
       }
-
-      const loginForm = document.getElementById("login-form");
-      const loginButton = document.getElementById("login-form-submit");
-      const loginErrorMsg = document.getElementById("login-error-msg");
-      loginButton.addEventListener("click", (e) => {
-        e.preventDefault();
-        const username = loginForm.username.value;
-        const password = loginForm.password.value;
-        if (username === "user" && password === "web_dev") {
-          alert("You have successfully logged in.");
-          location.reload();
-        } 
-        else {
-        loginErrorMsg.style.opacity = 1;
-        }
-      })
       
       // Make necessary update to the web page when the connection state changes
       peerConnection.oniceconnectionstatechange = e => {
