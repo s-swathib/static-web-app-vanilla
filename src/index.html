@@ -5,10 +5,10 @@
   <meta charset="UTF-8" />
   <title>Trailblazers Outdoor Gear</title>
 
-  <link href="styles.css" rel="stylesheet" />
+  <link href="./css/styles.css" rel="stylesheet" />
 
   <script src="./js/microsoft.cognitiveservices.speech.sdk.bundle-min.js"></script>
-  <script src="./js/main.js" type="module"></script>
+  <script src="./js/main.js"></script>
 
   <script type="module" src="https://unpkg.com/@fluentui/web-components"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
@@ -44,7 +44,7 @@
           What is the warrenty for women's hiking boots?
         </button>
 
-        <button onclick="window.speak('Do you have a tent for two people?')">
+        <button onclick="window.speak(`Do you have a tent for two people?`)">
           Do you have a tent for two people?
         </button>
 
@@ -81,26 +81,21 @@
       <ul id="chathistory" class="chat-history"></ul>
     </div>
   </div>
-  
+
   <div id="loginOverlay">
     <div id="gradientOverlay">
       <div class="loginCard">
         <div class="loginCard__header">Login</div>
-        
-        <form id="login-form">
-          <input type="text" name="username" id="username-field" class="login-form-field" placeholder="Username">
-          <input type="password" name="password" id="password-field" class="login-form-field" placeholder="Password">
-          <input type="submit" value="Login" id="login-form-submit">
-        </form>
+
+        <fluent-text-field appearance="outline" placeholder="user@email.com">Username</fluent-text-field>
+        <fluent-text-field appearance="outline" placeholder="****************">Password</fluent-text-field>
 
         <button id="playVideo" onclick="window.startSession()">
-          <span id="playVideo__text" class="playVideo__text"></span>
+          <span id="playVideo__text" class="playVideo__text">Login</span>
         </button>
-        
       </div>
     </div>
   </div>
-  
 </body>
 
 </html>
