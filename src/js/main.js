@@ -52,8 +52,10 @@ function removeDocumentReferences(str) {
 // Setup WebRTC
 function setupWebRTC() {
   // Create WebRTC peer connection
-  fetch("/api/getIceServerToken", {
-    method: "POST"
+  const Url ="/api/getIceServerToken"
+  axios({
+    method: 'post',
+    url : Url
   })
     .then(response => response.json())
     .then(response => { 
@@ -67,6 +69,7 @@ function setupWebRTC() {
           credential: IceServerCredential
         }]
       })
+      .catch(err=>console.log(err))
     
       // Fetch WebRTC video stream and mount it to an HTML video element
       peerConnection.ontrack = function (event) {
@@ -131,13 +134,19 @@ async function generateText(prompt) {
 
   let generatedText
   let products
-  await fetch(`/api/message`, { method: 'POST', headers: { 'Content-Type': 'application/json'}, body: JSON.stringify(messages) })
-  .then(response => response.json())
-  .then(data => {
-    generatedText = data["messages"][data["messages"].length - 1].content;
-    messages = data["messages"];
-    products = data["products"]
-  });
+  const Url1="/api/message"
+  await axios({
+    method: 'POST', 
+    url:Url1,
+    headers: { 
+      'Content-Type': 'application/json'},
+    body: JSON.stringify(messages) })
+    .then(response => response.json())
+    .then(data => {
+      generatedText = data["messages"][data["messages"].length - 1].content;
+      messages = data["messages"];
+      products = data["products"]})
+    .catch(err=>console.log(err));
 
   addToConversationHistory(generatedText, 'light');
   if(products.length > 0) {
@@ -225,9 +234,10 @@ window.startSession = () => {
   speechSynthesisConfig.speechSynthesisVoiceName = TTSVoice
   document.getElementById('playVideo').className = "round-button-hide"
 
-  fetch("/api/getSpeechToken", {
-    method: "POST"
-  })
+  const url2="/api/getSpeechToken"
+  axios({
+    method: 'post',
+    url: url2})
     .then(response => response.text())
     .then(response => { 
       speechSynthesisConfig.authorizationToken = response;
@@ -237,8 +247,7 @@ window.startSession = () => {
       speechSynthesizer = new SpeechSDK.SpeechSynthesizer(speechSynthesisConfig, null)
       requestAnimationFrame(setupWebRTC)
     })
-
-  
+    .catch(err=>console.log(err))
   // setupWebRTC()
 }
 
