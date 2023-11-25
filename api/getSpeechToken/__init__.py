@@ -15,7 +15,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     token_endpoint = f"https://{region}.api.cognitive.microsoft.com/sts/v1.0/issueToken"
 
     # Make HTTP request with subscription key as header
-    response = requests.get(token_endpoint, headers={"Ocp-Apim-Subscription-Key": subscription_key})
+    response = requests.post(token_endpoint, headers={"Ocp-Apim-Subscription-Key": subscription_key})
 
     if response.status_code == 200:
         access_token = response.text
