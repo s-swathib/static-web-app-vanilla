@@ -245,17 +245,32 @@ async function greeting() {
   })
 }
 
+const { spawn } = require('child_process');
+
 window.speak = (text) => {
-  async function speak(text) {
+  const args = ['-text', text];
+  async function speak(scriptPath, args) {
     addToConversationHistory(text, 'dark')
 
-    fetch("/api/detectLanguage?text="+text, {
-      method: "POST"
-    })
-      .then(response => response.text())
-      .then(async language => {
-        console.log(`Detected language: ${language}`);
+    const pyProg = spawn(process.execPath, [scriptPath].concat(args));
 
+    // Collect data from script and print to console
+    let data = '';
+    pyProg.stdout.on('data', (stdout) => {
+      data += stdout.toString();
+    });
+    // Print errors to console, if any
+    pyProg.stderr.on('data', (stderr) => {
+      console.log(`stderr: ${stderr}`);
+    });
+      
+    // When script is finished, print collected data
+    pyProg.on('close', (code) => {
+      console.log(`child process exited with code ${code}`);
+      console.log(data);
+      async language => {
+        console.log(`Detected language: ${language}`);
+        
         const generatedResult = await generateText(text);
         
         let spokenTextssml = `<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xmlns:mstts='https://www.w3.org/2001/mstts' xml:lang='en-US'><voice xml:lang='en-US' xml:gender='Female' name='en-US-JennyMultilingualNeural'><lang xml:lang="${language}">${generatedResult}</lang></voice></speak>`
@@ -278,12 +293,9 @@ window.speak = (text) => {
             }
           }
         })
-      })
-      .catch(error => {
-        console.error('Error:', error);
-      });
+      }
   }
-  speak(text);
+  speak('/api/detectLanguage/',args);
 }
 
 window.stopSession = () => {
