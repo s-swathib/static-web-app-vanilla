@@ -294,6 +294,7 @@ window.speak = (text) => {
           }
         })
       }
+    }
   }
   speak('/api/detectLanguage/',args);
 }
