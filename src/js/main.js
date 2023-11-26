@@ -218,11 +218,34 @@ window.startSession = () => {
   speechSynthesisConfig.speechSynthesisVoiceName = TTSVoice
   document.getElementById('playVideo').className = "round-button-hide"
 
-  response ="eyJhbGciOiJFUzI1NiIsImtpZCI6ImtleTEiLCJ0eXAiOiJKV1QifQ.eyJyZWdpb24iOiJ3ZXN0dXMyIiwic3Vic2NyaXB0aW9uLWlkIjoiNTE1NzZhOGZkY2YzNDI4MDk0MDFhOGNmNmVkMmM4NjEiLCJwcm9kdWN0LWlkIjoiU3BlZWNoU2VydmljZXMuUzAiLCJjb2duaXRpdmUtc2VydmljZXMtZW5kcG9pbnQiOiJodHRwczovL2FwaS5jb2duaXRpdmUubWljcm9zb2Z0LmNvbS9pbnRlcm5hbC92MS4wLyIsImF6dXJlLXJlc291cmNlLWlkIjoiL3N1YnNjcmlwdGlvbnMvY2RkMTMwMzAtNzdlMC00MWE1LWIwZDktNTU4YzdlMTA1NTFjL3Jlc291cmNlR3JvdXBzL0FJTUxQT0MyREVQL3Byb3ZpZGVycy9NaWNyb3NvZnQuQ29nbml0aXZlU2VydmljZXMvYWNjb3VudHMvdGV4dHRvc3BlZWNoc3R1ZGlvIiwic2NvcGUiOiJzcGVlY2hzZXJ2aWNlcyIsImF1ZCI6InVybjptcy5zcGVlY2hzZXJ2aWNlcy53ZXN0dXMyIiwiZXhwIjoxNzAxMDAwMjUxLCJpc3MiOiJ1cm46bXMuY29nbml0aXZlc2VydmljZXMifQ.35k-1I0e7Ga6HM_GW1YFVazGIiuLC8SWhohHJ8KK-O7vOncCtNCBGOg626n_tCyzb6y6JH6A_AF1WaVfmY7S-Q"
-  speechSynthesisConfig.authorizationToken = response;
-  token = response
-  speechSynthesizer = new SpeechSDK.SpeechSynthesizer(speechSynthesisConfig, null)
-  requestAnimationFrame(setupWebRTC)
+  // Run a Python script and return output
+  require(['child_process'], function runPythonScript(scriptPath, args) {
+    // Use child_process.spawn method from 
+    // child_process module and assign it to variable
+    const pyProg = spawn('python', [scriptPath].concat(args));
+    // Collect data from script and print to console
+    let data = '';
+    pyProg.stdout.on('data', (stdout) => {
+      data += stdout.toString();
+    });
+    
+    // Print errors to console, if any
+    pyProg.stderr.on('data', (stderr) => {
+      console.log(`stderr: ${stderr}`);
+    });
+    
+    // When script is finished, print collected data
+    pyProg.on('close', (code) => {
+      console.log(`child process exited with code ${code}`);
+      console.log(data);
+      response = data;
+      speechSynthesisConfig.authorizationToken = response;
+      token = response
+      speechSynthesizer = new SpeechSDK.SpeechSynthesizer(speechSynthesisConfig, null)
+      requestAnimationFrame(setupWebRTC)
+    });
+  }
+  runPythonScript('/api/getSpeechToken/');
 }
 
 async function greeting() {
@@ -246,7 +269,7 @@ async function greeting() {
 }
 
 window.speak = (text) => {
-  require(['child_process'],async function speak(scriptPath, text) {
+  require(['child_process'],async function speak1(scriptPath, text) {
     addToConversationHistory(text, 'dark')
 
     const pyProg = spawn(process.execPath, [scriptPath].concat(text));
@@ -293,7 +316,7 @@ window.speak = (text) => {
       }
     });
   });
-  speak('/api/detectLanguage/',text);
+  speak1('/api/detectLanguage/',text);
 }
 
 window.stopSession = () => {
