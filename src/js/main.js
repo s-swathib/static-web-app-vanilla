@@ -51,58 +51,43 @@ function removeDocumentReferences(str) {
 
 // Setup WebRTC
 function setupWebRTC() {
-  // Create WebRTC peer connection
-  const Url ="/api/getIceServerToken"
-  axios({
-    method: 'post',
-    url : Url
-  })
-    .then(response => response.json())
-    .then(response => { 
-      IceServerUsername = response.username
-      IceServerCredential = response.credential
-
-      peerConnection = new RTCPeerConnection({
+    IceServerUsername = "BQAANmXAyIAB2iE0CgIjuChTUuN6ju7NH2owrtXiS1AAAAAMARBLzcgb+8ZGv7VTu51ROGIsrn3j1xkOsVZBYYwYaz6M5IQwJe4="
+    IceServerCredential = "33qDidv0KCP3VDTvpWZCeSaDq2Y="
+    peerConnection = new RTCPeerConnection({
         iceServers: [{
-          urls: [IceServerUrl],
-          username: IceServerUsername,
-          credential: IceServerCredential
+            urls: [IceServerUrl],
+            username: IceServerUsername,
+            credential: IceServerCredential
         }]
-      })
-      .catch(err=>console.log(err))
-    
-      // Fetch WebRTC video stream and mount it to an HTML video element
-      peerConnection.ontrack = function (event) {
+    })
+    // Fetch WebRTC video stream and mount it to an HTML video element
+    peerConnection.ontrack = function (event) {
         console.log('peerconnection.ontrack', event)
         // Clean up existing video element if there is any
         remoteVideoDiv = document.getElementById('remoteVideo')
         for (var i = 0; i < remoteVideoDiv.childNodes.length; i++) {
-          if (remoteVideoDiv.childNodes[i].localName === event.track.kind) {
-            remoteVideoDiv.removeChild(remoteVideoDiv.childNodes[i])
-          }
+            if (remoteVideoDiv.childNodes[i].localName === event.track.kind) {
+                remoteVideoDiv.removeChild(remoteVideoDiv.childNodes[i])
+            }
         }
-    
         const videoElement = document.createElement(event.track.kind)
         videoElement.id = event.track.kind
         videoElement.srcObject = event.streams[0]
         videoElement.autoplay = true
         videoElement.controls = false
         document.getElementById('remoteVideo').appendChild(videoElement)
-
         canvas = document.getElementById('canvas')
         remoteVideoDiv.hidden = true
         canvas.hidden = false
-
         videoElement.addEventListener('play', () => {
-          remoteVideoDiv.style.width = videoElement.videoWidth / 2 + 'px'
-          window.requestAnimationFrame(makeBackgroundTransparent)
-      })
-      }
-      
-      // Make necessary update to the web page when the connection state changes
-      peerConnection.oniceconnectionstatechange = e => {
+            remoteVideoDiv.style.width = videoElement.videoWidth / 2 + 'px'
+            window.requestAnimationFrame(makeBackgroundTransparent)
+        })
+    }
+    // Make necessary update to the web page when the connection state changes
+    peerConnection.oniceconnectionstatechange = e => {
         console.log("WebRTC status: " + peerConnection.iceConnectionState)
-    
+        
         if (peerConnection.iceConnectionState === 'connected') {
           greeting()
           document.getElementById('loginOverlay').classList.add("hidden");
@@ -112,18 +97,17 @@ function setupWebRTC() {
           document.getElementById('loginOverlay').classList.remove("hidden");
           alert("Connection lost. Please refresh the page to reconnect.");
         }
-      }
+    }
     
-      // Offer to receive 1 audio, and 1 video track
-      peerConnection.addTransceiver('video', { direction: 'sendrecv' })
-      peerConnection.addTransceiver('audio', { direction: 'sendrecv' })
+    // Offer to receive 1 audio, and 1 video track
+    peerConnection.addTransceiver('video', { direction: 'sendrecv' })
+    peerConnection.addTransceiver('audio', { direction: 'sendrecv' })
     
-      // Set local description
-      peerConnection.createOffer().then(sdp => {
+    // Set local description
+    peerConnection.createOffer().then(sdp => {
         peerConnection.setLocalDescription(sdp).then(() => { setTimeout(() => { connectToAvatarService() }, 1000) })
-      }).catch(console.log)
-    })  
-}
+    }).catch(console.log)
+  }
 
 async function generateText(prompt) {
 
@@ -234,21 +218,11 @@ window.startSession = () => {
   speechSynthesisConfig.speechSynthesisVoiceName = TTSVoice
   document.getElementById('playVideo').className = "round-button-hide"
 
-  const url2="/api/getSpeechToken"
-  axios({
-    method: 'post',
-    url: url2})
-    .then(response => response.text())
-    .then(response => { 
-      speechSynthesisConfig.authorizationToken = response;
-      token = response
-    })
-    .then(() => {
-      speechSynthesizer = new SpeechSDK.SpeechSynthesizer(speechSynthesisConfig, null)
-      requestAnimationFrame(setupWebRTC)
-    })
-    .catch(err=>console.log(err))
-  // setupWebRTC()
+  response ="eyJhbGciOiJFUzI1NiIsImtpZCI6ImtleTEiLCJ0eXAiOiJKV1QifQ.eyJyZWdpb24iOiJ3ZXN0dXMyIiwic3Vic2NyaXB0aW9uLWlkIjoiNTE1NzZhOGZkY2YzNDI4MDk0MDFhOGNmNmVkMmM4NjEiLCJwcm9kdWN0LWlkIjoiU3BlZWNoU2VydmljZXMuRjAiLCJjb2duaXRpdmUtc2VydmljZXMtZW5kcG9pbnQiOiJodHRwczovL2FwaS5jb2duaXRpdmUubWljcm9zb2Z0LmNvbS9pbnRlcm5hbC92MS4wLyIsImF6dXJlLXJlc291cmNlLWlkIjoiL3N1YnNjcmlwdGlvbnMvY2RkMTMwMzAtNzdlMC00MWE1LWIwZDktNTU4YzdlMTA1NTFjL3Jlc291cmNlR3JvdXBzL0FJTUxQT0MyREVQL3Byb3ZpZGVycy9NaWNyb3NvZnQuQ29nbml0aXZlU2VydmljZXMvYWNjb3VudHMvdGV4dHRvc3BlZWNoc3R1ZGlvIiwic2NvcGUiOiJzcGVlY2hzZXJ2aWNlcyIsImF1ZCI6InVybjptcy5zcGVlY2hzZXJ2aWNlcy53ZXN0dXMyIiwiZXhwIjoxNzAwOTE5MTI1LCJpc3MiOiJ1cm46bXMuY29nbml0aXZlc2VydmljZXMifQ.eknwkJsCTLjegtF1hUga-MzdET2AKPp800dMGKDtAYeEXMmqybhhH5BN8oekiKXTBJ80NLnmfVIdZd1jA_QYG"
+  speechSynthesisConfig.authorizationToken = response;
+  token = response
+  speechSynthesizer = new SpeechSDK.SpeechSynthesizer(speechSynthesisConfig, null)
+  requestAnimationFrame(setupWebRTC)
 }
 
 async function greeting() {
