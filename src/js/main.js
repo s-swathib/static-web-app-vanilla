@@ -245,11 +245,9 @@ async function greeting() {
   })
 }
 
-const { spawn } = require('child_process');
-
 window.speak = (text) => {
   const args = ['-text', text];
-  async function speak(scriptPath, args) {
+  require(['child_process'],async function speak(scriptPath, args) {
     addToConversationHistory(text, 'dark')
 
     const pyProg = spawn(process.execPath, [scriptPath].concat(args));
@@ -295,7 +293,7 @@ window.speak = (text) => {
         })
       }
     });
-  }
+  });
   speak('/api/detectLanguage/',args);
 }
 
