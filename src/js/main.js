@@ -246,11 +246,10 @@ async function greeting() {
 }
 
 window.speak = (text) => {
-  const args = ['-text', text];
-  require(['child_process'],async function speak(scriptPath, args) {
+  require(['child_process'],async function speak(scriptPath, text) {
     addToConversationHistory(text, 'dark')
 
-    const pyProg = spawn(process.execPath, [scriptPath].concat(args));
+    const pyProg = spawn(process.execPath, [scriptPath].concat(text));
 
     // Collect data from script and print to console
     let data = '';
@@ -294,7 +293,7 @@ window.speak = (text) => {
       }
     });
   });
-  speak('/api/detectLanguage/',args);
+  speak('/api/detectLanguage/',text);
 }
 
 window.stopSession = () => {
