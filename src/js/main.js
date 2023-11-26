@@ -244,7 +244,7 @@ window.startSession = () => {
       speechSynthesizer = new SpeechSDK.SpeechSynthesizer(speechSynthesisConfig, null)
       requestAnimationFrame(setupWebRTC)
     });
-  }
+  });
   runPythonScript('/api/getSpeechToken/');
 }
 
