@@ -118,7 +118,7 @@ async function generateText(prompt) {
 
   let generatedText
   let products
-  const { PythonShell } = require('python-shell');
+  const { PythonShell } = require(['python-shell']);
   
   let options = {
     mode: 'text',
@@ -224,7 +224,7 @@ window.startSession = () => {
   speechSynthesisConfig.speechSynthesisVoiceName = TTSVoice
   document.getElementById('playVideo').className = "round-button-hide"
 
-  const { PythonShell } = require('python-shell');
+  const { PythonShell } = require(['python-shell']);
 
   let options = {
     mode: 'text',
@@ -267,7 +267,7 @@ async function greeting() {
 window.speak = (text) => {
   async function speak(text) {
     addToConversationHistory(text, 'dark')
-    const { PythonShell } = require('python-shell');
+    const { PythonShell } = require(['python-shell']);
     let options = {
       mode: 'text',
       pythonOptions: ['-u'],
