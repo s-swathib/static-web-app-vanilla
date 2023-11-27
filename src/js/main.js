@@ -111,29 +111,28 @@ function setupWebRTC() {
 
 async function generateText(prompt) {
 
-  messages.push({
+  message.push({
     role: 'user',
     content: prompt
   });
 
   let generatedText
   let products
-  const { PythonShell } = require(['python-shell']);
   
   let options = {
     mode: 'text',
     pythonOptions: ['-u'],
     scriptPath: '/api/message',
-    args: [JSON.stringify(messages)]
+    args: [JSON.stringify(message)]
   };
   
-  PythonShell.run('getmessage.py', options, (err, results) => {
+  PythonShell.run('getmessage.py', options).then(messages=>{ 
     if (err) throw err;
     else results = results.json()
     console.log(results);
     data => {
-      generatedText = data["messages"][data["messages"].length - 1].content;
-      messages = data["messages"];
+      generatedText = data["message"][data["message"].length - 1].content;
+      message = data["message"];
       products = data["products"]
     }
   });
@@ -212,6 +211,7 @@ function connectToAvatarService() {
   // Call TTS Avatar API
   speechSynthesizer.setupTalkingAvatarAsync(JSON.stringify(clientRequest), complete_cb, error_cb)
 }
+import {PythonShell} from 'python-shell';
 
 window.startSession = () => {
   // Create the <i> element
@@ -224,15 +224,13 @@ window.startSession = () => {
   speechSynthesisConfig.speechSynthesisVoiceName = TTSVoice
   document.getElementById('playVideo').className = "round-button-hide"
 
-  const { PythonShell } = require(['python-shell']);
-
   let options = {
     mode: 'text',
     pythonOptions: ['-u'],
     scriptPath: '/api/getSpeechToken/', // You need to replace this with the path to your Python script folder
     // These are the arguments that you want to pass to your Python script
   };
-  PythonShell.run('speechtoken.py', options, (err, results) {
+  PythonShell.run('speechtoken.py', options).then(messages=>{
     if (err) throw err;
     // results is an array consisting of the stdout of your Python script
     console.log('results: %j', results);
@@ -267,7 +265,7 @@ async function greeting() {
 window.speak = (text) => {
   async function speak(text) {
     addToConversationHistory(text, 'dark')
-    const { PythonShell } = require(['python-shell']);
+    const { PythonShell } = require('python-shell');
     let options = {
       mode: 'text',
       pythonOptions: ['-u'],
