@@ -118,25 +118,31 @@ async function generateText(prompt) {
 
   let generatedText
   let products
-  const Url1="/api/message"
-  await axios({
-    method: 'POST', 
-    url:Url1,
-    headers: { 
-      'Content-Type': 'application/json'},
-    body: JSON.stringify(messages) })
-    .then(response => response.json())
-    .then(data => {
+  const { PythonShell } = require('python-shell');
+  
+  let options = {
+    mode: 'text',
+    pythonOptions: ['-u'],
+    scriptPath: '/api/message',
+    args: [JSON.stringify(messages)]
+  };
+  
+  PythonShell.run('getmessage.py', options, (err, results) => {
+    if (err) throw err;
+    else results = results.json()
+    console.log(results);
+    data => {
       generatedText = data["messages"][data["messages"].length - 1].content;
       messages = data["messages"];
-      products = data["products"]})
-    .catch(err=>console.log(err));
-
+      products = data["products"]
+    }
+  });
+  
   addToConversationHistory(generatedText, 'light');
-  if(products.length > 0) {
+  if (products.length > 0) {
     addProductToChatHistory(products[0]);
   }
-  return generatedText;
+  return generatedText
 }
 
 // Connect to TTS Avatar API
@@ -218,34 +224,24 @@ window.startSession = () => {
   speechSynthesisConfig.speechSynthesisVoiceName = TTSVoice
   document.getElementById('playVideo').className = "round-button-hide"
 
-  // Run a Python script and return output
-  require(['child_process'], function runPythonScript(scriptPath, args) {
-    // Use child_process.spawn method from 
-    // child_process module and assign it to variable
-    const pyProg = spawn('python', [scriptPath].concat(args));
-    // Collect data from script and print to console
-    let data = '';
-    pyProg.stdout.on('data', (stdout) => {
-      data += stdout.toString();
-    });
-    
-    // Print errors to console, if any
-    pyProg.stderr.on('data', (stderr) => {
-      console.log(`stderr: ${stderr}`);
-    });
-    
-    // When script is finished, print collected data
-    pyProg.on('close', (code) => {
-      console.log(`child process exited with code ${code}`);
-      console.log(data);
-      response = data;
-      speechSynthesisConfig.authorizationToken = response;
-      token = response
-      speechSynthesizer = new SpeechSDK.SpeechSynthesizer(speechSynthesisConfig, null)
-      requestAnimationFrame(setupWebRTC)
-    });
+  const { PythonShell } = require('python-shell');
+
+  let options = {
+    mode: 'text',
+    pythonOptions: ['-u'],
+    scriptPath: '/api/getSpeechToken/', // You need to replace this with the path to your Python script folder
+    // These are the arguments that you want to pass to your Python script
+  };
+  PythonShell.run('speechtoken.py', options, function (err, results) {
+    if (err) throw err;
+    // results is an array consisting of the stdout of your Python script
+    console.log('results: %j', results);
+    response = results;
+    speechSynthesisConfig.authorizationToken = response;
+    token = response
+    speechSynthesizer = new SpeechSDK.SpeechSynthesizer(speechSynthesisConfig, null)
+    requestAnimationFrame(setupWebRTC)
   });
-  runPythonScript('/api/getSpeechToken/');
 }
 
 async function greeting() {
@@ -269,30 +265,26 @@ async function greeting() {
 }
 
 window.speak = (text) => {
-  require(['child_process'],async function speak1(scriptPath, text) {
+  async function speak(text) {
     addToConversationHistory(text, 'dark')
-
-    const pyProg = spawn(process.execPath, [scriptPath].concat(text));
-
-    // Collect data from script and print to console
-    let data = '';
-    pyProg.stdout.on('data', (stdout) => {
-      data += stdout.toString();
-    });
-    // Print errors to console, if any
-    pyProg.stderr.on('data', (stderr) => {
-      console.log(`stderr: ${stderr}`);
-    });
+    const { PythonShell } = require('python-shell');
+    let options = {
+      mode: 'text',
+      pythonOptions: ['-u'],
+      scriptPath: '/api/detectLanguage/', // You need to replace this with the path to your Python script folder
+      args:[text]// These are the arguments that you want to pass to your Python script
+    };
+    
+    PythonShell.run('detectlanguage.py', options, function (err, results) {
       
-    // When script is finished, print collected data
-    pyProg.on('close', (code) => {
-      console.log(`child process exited with code ${code}`);
-      console.log(data);
+      if (err) throw err;
+      // results is an array consisting of the stdout of your Python script
+      console.log('results: %j', results);
       async language => {
         console.log(`Detected language: ${language}`);
-        
+      
         const generatedResult = await generateText(text);
-        
+      
         let spokenTextssml = `<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xmlns:mstts='https://www.w3.org/2001/mstts' xml:lang='en-US'><voice xml:lang='en-US' xml:gender='Female' name='en-US-JennyMultilingualNeural'><lang xml:lang="${language}">${generatedResult}</lang></voice></speak>`
 
         if (language == 'ar-AE') {
@@ -302,21 +294,22 @@ window.speak = (text) => {
         speechSynthesizer.speakSsmlAsync(spokenTextssml, (result) => {
           if (result.reason === SpeechSDK.ResultReason.SynthesizingAudioCompleted) {
             console.log("Speech synthesized to speaker for text [ " + spokenText + " ]. Result ID: " + result.resultId)
-          } else {
+          }
+          else {
             console.log("Unable to speak text. Result ID: " + result.resultId)
-            if (result.reason === SpeechSDK.ResultReason.Canceled) {
+            if (result.reason === SpeechSDK.ResultReason.Canceled) 
+            {
               let cancellationDetails = SpeechSDK.CancellationDetails.fromResult(result)
               console.log(cancellationDetails.reason)
-              if (cancellationDetails.reason === SpeechSDK.CancellationReason.Error) {
-                console.log(cancellationDetails.errorDetails)
-              }
+              if (cancellationDetails.reason === SpeechSDK.CancellationReason.Error) 
+              {console.log(cancellationDetails.errorDetails)}
             }
           }
         })
       }
     });
-  });
-  speak1('/api/detectLanguage/',text);
+  }
+speak(text);
 }
 
 window.stopSession = () => {
