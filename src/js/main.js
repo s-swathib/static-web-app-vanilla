@@ -12,21 +12,19 @@ var system_prompt = `You are an AI assistant focused on delivering brief product
 - Pay attention to the language the customer is using in their latest statement and respond in the same language!
 `
 
-const axios = require('axios');
-
 const TTSVoice = "en-US-JennyMultilingualNeural" // Update this value if you want to use a different voice
 
-const CogSvcRegion = "westus2" // Fill your Azure cognitive services region here, e.g. westus2
+const CogSvcRegion = "westeurope" // Fill your Azure cognitive services region here, e.g. westus2
+
+const IceServerUrl = "turn:relay.communication.microsoft.com:3478" // Fill your ICE server URL here, e.g. turn:turn.azure.com:3478
+let IceServerUsername
+let IceServerCredential
 
 // This is the only avatar which supports live streaming so far, please don't modify
 const TalkingAvatarCharacter = "lisa"
 const TalkingAvatarStyle = "casual-sitting"
 
 supported_languages = ["en-US", "de-DE", "zh-CN", "ar-AE"] // The language detection engine supports a maximum of 4 languages
-
-const IceServerUrl = "turn:relay.communication.microsoft.com:3478" // Fill your ICE server URL here, e.g. turn:turn.azure.com:3478
-let IceServerUsername
-let IceServerCredential
 
 const BackgroundColor = '#FFFFFFFF'
 
@@ -53,63 +51,74 @@ function removeDocumentReferences(str) {
 
 // Setup WebRTC
 function setupWebRTC() {
-    IceServerUsername = "BQAANmXAyIAB2iE0CgIjuChTUuN6ju7NH2owrtXiS1AAAAAMARBLzcgb+8ZGv7VTu51ROGIsrn3j1xkOsVZBYYwYaz6M5IQwJe4="
-    IceServerCredential = "33qDidv0KCP3VDTvpWZCeSaDq2Y="
-    peerConnection = new RTCPeerConnection({
+  // Create WebRTC peer connection
+  fetch("https://github.com/s-swathib/static-web-app-vanilla/blob/main/api/getIceServerToken/", {
+    method: "POST"
+  })
+    .then(response => response.json())
+    .then(response => { 
+      IceServerUsername = response.username
+      IceServerCredential = response.credential
+
+      peerConnection = new RTCPeerConnection({
         iceServers: [{
-            urls: [IceServerUrl],
-            username: IceServerUsername,
-            credential: IceServerCredential
+          urls: [IceServerUrl],
+          username: IceServerUsername,
+          credential: IceServerCredential
         }]
-    })
-    // Fetch WebRTC video stream and mount it to an HTML video element
-    peerConnection.ontrack = function (event) {
+      })
+    
+      // Fetch WebRTC video stream and mount it to an HTML video element
+      peerConnection.ontrack = function (event) {
         console.log('peerconnection.ontrack', event)
         // Clean up existing video element if there is any
         remoteVideoDiv = document.getElementById('remoteVideo')
         for (var i = 0; i < remoteVideoDiv.childNodes.length; i++) {
-            if (remoteVideoDiv.childNodes[i].localName === event.track.kind) {
-                remoteVideoDiv.removeChild(remoteVideoDiv.childNodes[i])
-            }
+          if (remoteVideoDiv.childNodes[i].localName === event.track.kind) {
+            remoteVideoDiv.removeChild(remoteVideoDiv.childNodes[i])
+          }
         }
+    
         const videoElement = document.createElement(event.track.kind)
         videoElement.id = event.track.kind
         videoElement.srcObject = event.streams[0]
         videoElement.autoplay = true
         videoElement.controls = false
         document.getElementById('remoteVideo').appendChild(videoElement)
+
         canvas = document.getElementById('canvas')
         remoteVideoDiv.hidden = true
         canvas.hidden = false
+
         videoElement.addEventListener('play', () => {
-            remoteVideoDiv.style.width = videoElement.videoWidth / 2 + 'px'
-            window.requestAnimationFrame(makeBackgroundTransparent)
-        })
-    }
-    // Make necessary update to the web page when the connection state changes
-    peerConnection.oniceconnectionstatechange = e => {
+          remoteVideoDiv.style.width = videoElement.videoWidth / 2 + 'px'
+          window.requestAnimationFrame(makeBackgroundTransparent)
+      })
+      }
+    
+      // Make necessary update to the web page when the connection state changes
+      peerConnection.oniceconnectionstatechange = e => {
         console.log("WebRTC status: " + peerConnection.iceConnectionState)
-        
+    
         if (peerConnection.iceConnectionState === 'connected') {
           greeting()
           document.getElementById('loginOverlay').classList.add("hidden");
         }
     
         if (peerConnection.iceConnectionState === 'disconnected') {
-          document.getElementById('loginOverlay').classList.remove("hidden");
-          alert("Connection lost. Please refresh the page to reconnect.");
         }
-    }
+      }
     
-    // Offer to receive 1 audio, and 1 video track
-    peerConnection.addTransceiver('video', { direction: 'sendrecv' })
-    peerConnection.addTransceiver('audio', { direction: 'sendrecv' })
+      // Offer to receive 1 audio, and 1 video track
+      peerConnection.addTransceiver('video', { direction: 'sendrecv' })
+      peerConnection.addTransceiver('audio', { direction: 'sendrecv' })
     
-    // Set local description
-    peerConnection.createOffer().then(sdp => {
+      // Set local description
+      peerConnection.createOffer().then(sdp => {
         peerConnection.setLocalDescription(sdp).then(() => { setTimeout(() => { connectToAvatarService() }, 1000) })
-    }).catch(console.log)
-  }
+      }).catch(console.log)
+    })  
+}
 
 async function generateText(prompt) {
 
@@ -120,19 +129,17 @@ async function generateText(prompt) {
 
   let generatedText
   let products
-  const Url1="/api/message"
-  await axios({
+  await fetch('https://github.com/s-swathib/static-web-app-vanilla/tree/main/api/message', { 
     method: 'POST', 
-    url:Url1,
     headers: { 
-      'Content-Type': 'application/json'},
-    body: JSON.stringify(messages) })
-    .then(response => response.json())
-    .then(data => {
-      generatedText = data["messages"][data["messages"].length - 1].content;
-      messages = data["messages"];
-      products = data["products"]})
-    .catch(err=>console.log(err));
+      'Content-Type': 'application/json'}, 
+      body: JSON.stringify(messages) })
+  .then(response => response.json())
+  .then(data => {
+    generatedText = data["messages"][data["messages"].length - 1].content;
+    messages = data["messages"];
+    products = data["products"]
+  });
 
   addToConversationHistory(generatedText, 'light');
   if(products.length > 0) {
@@ -220,11 +227,21 @@ window.startSession = () => {
   speechSynthesisConfig.speechSynthesisVoiceName = TTSVoice
   document.getElementById('playVideo').className = "round-button-hide"
 
-  response = getAccessToken()
-  speechSynthesisConfig.authorizationToken = response;
-  token = response
-  speechSynthesizer = new SpeechSDK.SpeechSynthesizer(speechSynthesisConfig, null)
-  requestAnimationFrame(setupWebRTC)
+  fetch("https://github.com/s-swathib/static-web-app-vanilla/blob/main/api/getSpeechToken", {
+    method: "POST"
+  })
+    .then(response => response.text())
+    .then(response => { 
+      speechSynthesisConfig.authorizationToken = response;
+      token = response
+    })
+    .then(() => {
+      speechSynthesizer = new SpeechSDK.SpeechSynthesizer(speechSynthesisConfig, null)
+      requestAnimationFrame(setupWebRTC)
+    })
+
+  
+  // setupWebRTC()
 }
 
 async function greeting() {
@@ -250,31 +267,40 @@ async function greeting() {
 window.speak = (text) => {
   async function speak(text) {
     addToConversationHistory(text, 'dark')
-    data = getLanguageCode(text)
-    console.log(data);
-    async language => {
-      console.log(`Detected language: ${language}`);
-      const generatedResult = await generateText(text);
-      let spokenTextssml = `<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xmlns:mstts='https://www.w3.org/2001/mstts' xml:lang='en-US'><voice xml:lang='en-US' xml:gender='Female' name='en-US-JennyMultilingualNeural'><lang xml:lang="${language}">${generatedResult}</lang></voice></speak>`
-      if (language == 'ar-AE') {
-        spokenTextssml = `<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xmlns:mstts='https://www.w3.org/2001/mstts' xml:lang='en-US'><voice xml:lang='en-US' xml:gender='Female' name='ar-AE-FatimaNeural'><lang xml:lang="${language}">${generatedResult}</lang></voice></speak>`
-      }
-      let spokenText = generatedResult
-      speechSynthesizer.speakSsmlAsync(spokenTextssml, (result) => {
-        if (result.reason === SpeechSDK.ResultReason.SynthesizingAudioCompleted) {
-          console.log("Speech synthesized to speaker for text [ " + spokenText + " ]. Result ID: " + result.resultId)
-        } else {
-          console.log("Unable to speak text. Result ID: " + result.resultId)
-          if (result.reason === SpeechSDK.ResultReason.Canceled) {
-            let cancellationDetails = SpeechSDK.CancellationDetails.fromResult(result)
-            console.log(cancellationDetails.reason)
-            if (cancellationDetails.reason === SpeechSDK.CancellationReason.Error) {
-              console.log(cancellationDetails.errorDetails)
+
+    fetch("/api/detectLanguage?text="+text, {
+      method: "POST"
+    })
+      .then(response => response.text())
+      .then(async language => {
+        console.log(`Detected language: ${language}`);
+
+        const generatedResult = await generateText(text);
+        
+        let spokenTextssml = `<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xmlns:mstts='https://www.w3.org/2001/mstts' xml:lang='en-US'><voice xml:lang='en-US' xml:gender='Female' name='en-US-JennyMultilingualNeural'><lang xml:lang="${language}">${generatedResult}</lang></voice></speak>`
+
+        if (language == 'ar-AE') {
+          spokenTextssml = `<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xmlns:mstts='https://www.w3.org/2001/mstts' xml:lang='en-US'><voice xml:lang='en-US' xml:gender='Female' name='ar-AE-FatimaNeural'><lang xml:lang="${language}">${generatedResult}</lang></voice></speak>`
+        }
+        let spokenText = generatedResult
+        speechSynthesizer.speakSsmlAsync(spokenTextssml, (result) => {
+          if (result.reason === SpeechSDK.ResultReason.SynthesizingAudioCompleted) {
+            console.log("Speech synthesized to speaker for text [ " + spokenText + " ]. Result ID: " + result.resultId)
+          } else {
+            console.log("Unable to speak text. Result ID: " + result.resultId)
+            if (result.reason === SpeechSDK.ResultReason.Canceled) {
+              let cancellationDetails = SpeechSDK.CancellationDetails.fromResult(result)
+              console.log(cancellationDetails.reason)
+              if (cancellationDetails.reason === SpeechSDK.CancellationReason.Error) {
+                console.log(cancellationDetails.errorDetails)
+              }
             }
           }
-        }
+        })
+      })
+      .catch(error => {
+        console.error('Error:', error);
       });
-    }
   }
   speak(text);
 }
@@ -332,67 +358,6 @@ window.submitText = () => {
   window.speak(document.getElementById('textinput').currentValue);
 }
 
-
-async function getLanguageCode(text) {
-    const endpoint = "https://languagedep.cognitiveservices.azure.com/";
-    const subscription_key = "9be55ef15c3d401e8a2efa6140bde1e0";
-    const apiUrl = `${endpoint}/text/analytics/v3.2-preview.1/languages`;
-    const requestBody = {'documents': [{'id': '1', 'text': text}]};
-
-    const response = await axios.post(apiUrl, requestBody, {
-        headers: {
-            'Content-Type': 'application/json',
-            'Ocp-Apim-Subscription-Key': subscription_key
-        }
-    });
-    const data = response.data;
-    const language_code = data.documents[0].detectedLanguage.iso6391Name;
-    const language_to_voice = {
-        "de": "de-DE",
-        "en": "en-US",
-        "es": "es-ES",
-        "fr": "fr-FR",
-        "it": "it-IT",
-        "ja": "ja-JP",
-        "ko": "ko-KR",
-        "pt": "pt-BR",
-        "zh_chs": "zh-CN",
-        "zh_cht": "zh-CN",
-        "ar": "ar-AE"
-    };
-    if (response.status === 200) {
-        return language_to_voice[language_code];
-    } else {
-        throw new Error(`Request failed with status code ${response.status}`);
-    }
-}
-
-async function getAccessToken() {
-  // Define subscription key and region
-  const subscription_key = "f22920f0f7d64ce39ec6aa9ab6ca06a1";
-  const region = "westus2";
-  
-  // Define token endpoint
-  const token_endpoint = `https://${region}.api.cognitive.microsoft.com/sts/v1.0/issueToken`;
-
-  // Make HTTP request with subscription key as header
-  try {
-    const response = await axios.post(token_endpoint, null, {
-      headers: {
-        'Ocp-Apim-Subscription-Key': subscription_key
-      }
-    });
-    if (response.status === 200) {
-      return response.data;
-    } else {
-      console.info('Failed to retrieve access token.');
-      return null;
-    }
-  } catch (error) {
-    console.error(`Failed to retrieve access token. Error: ${error.message}`);
-    return null;
-  }
-}
 
 function addToConversationHistory(item, historytype) {
   const list = document.getElementById('chathistory');
@@ -464,4 +429,3 @@ function makeBackgroundTransparent(timestamp) {
 
   window.requestAnimationFrame(makeBackgroundTransparent)
 }
-
