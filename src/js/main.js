@@ -232,7 +232,7 @@ window.startSession = () => {
     scriptPath: '/api/getSpeechToken/', // You need to replace this with the path to your Python script folder
     // These are the arguments that you want to pass to your Python script
   };
-  PythonShell.run('speechtoken.py', options, function (err, results) {
+  PythonShell.run('speechtoken.py', options, (err, results) {
     if (err) throw err;
     // results is an array consisting of the stdout of your Python script
     console.log('results: %j', results);
