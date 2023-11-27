@@ -2,7 +2,7 @@
   "IsEncrypted": false,
   "Values": {
     "AzureWebJobsStorage": "depprocureformstorage",
-    "FUNCTIONS_WORKER_RUNTIME": "python",
+    "FUNCTIONS_WORKER_RUNTIME": "node",
     "AZURE_OPENAI_ENDPOINT": "https://ash-aiml-workspace-aoai.openai.azure.com/",
     "AZURE_OPENAI_API_KEY": "2c0b6697ce4e4f9bacc62c224288594e",
     "AZURE_OPENAI_CHAT_DEPLOYMENT" : "gpt-35-turbo-16k",
