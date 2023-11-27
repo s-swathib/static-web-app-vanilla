@@ -12,6 +12,8 @@ var system_prompt = `You are an AI assistant focused on delivering brief product
 - Pay attention to the language the customer is using in their latest statement and respond in the same language!
 `
 
+const axios = require('axios');
+
 const TTSVoice = "en-US-JennyMultilingualNeural" // Update this value if you want to use a different voice
 
 const CogSvcRegion = "westus2" // Fill your Azure cognitive services region here, e.g. westus2
@@ -21,7 +23,7 @@ const TalkingAvatarCharacter = "lisa"
 const TalkingAvatarStyle = "casual-sitting"
 
 supported_languages = ["en-US", "de-DE", "zh-CN", "ar-AE"] // The language detection engine supports a maximum of 4 languages
-import {PythonShell} from 'python-shell';
+
 const IceServerUrl = "turn:relay.communication.microsoft.com:3478" // Fill your ICE server URL here, e.g. turn:turn.azure.com:3478
 let IceServerUsername
 let IceServerCredential
@@ -107,41 +109,36 @@ function setupWebRTC() {
     peerConnection.createOffer().then(sdp => {
         peerConnection.setLocalDescription(sdp).then(() => { setTimeout(() => { connectToAvatarService() }, 1000) })
     }).catch(console.log)
-}
+  }
 
 async function generateText(prompt) {
 
-  message.push({
+  messages.push({
     role: 'user',
     content: prompt
   });
 
   let generatedText
   let products
-  
-  let options = {
-    mode: 'text',
-    pythonOptions: ['-u'],
-    scriptPath: '/api/message',
-    args: [JSON.stringify(message)]
-  };
-  
-  PythonShell.run('getmessage.py', options).then(messages=>{ 
-    if (err) throw err;
-    else results = results.json()
-    console.log(results);
-    data => {
-      generatedText = data["message"][data["message"].length - 1].content;
-      message = data["message"];
-      products = data["products"]
-    }
-  });
-  
+  const Url1="/api/message"
+  await axios({
+    method: 'POST', 
+    url:Url1,
+    headers: { 
+      'Content-Type': 'application/json'},
+    body: JSON.stringify(messages) })
+    .then(response => response.json())
+    .then(data => {
+      generatedText = data["messages"][data["messages"].length - 1].content;
+      messages = data["messages"];
+      products = data["products"]})
+    .catch(err=>console.log(err));
+
   addToConversationHistory(generatedText, 'light');
-  if (products.length > 0) {
+  if(products.length > 0) {
     addProductToChatHistory(products[0]);
   }
-  return generatedText
+  return generatedText;
 }
 
 // Connect to TTS Avatar API
@@ -212,7 +209,6 @@ function connectToAvatarService() {
   speechSynthesizer.setupTalkingAvatarAsync(JSON.stringify(clientRequest), complete_cb, error_cb)
 }
 
-
 window.startSession = () => {
   // Create the <i> element
   var iconElement = document.createElement("i");
@@ -224,22 +220,11 @@ window.startSession = () => {
   speechSynthesisConfig.speechSynthesisVoiceName = TTSVoice
   document.getElementById('playVideo').className = "round-button-hide"
 
-  let options = {
-    mode: 'text',
-    pythonOptions: ['-u'],
-    scriptPath: '/api/getSpeechToken/', // You need to replace this with the path to your Python script folder
-    // These are the arguments that you want to pass to your Python script
-  };
-  PythonShell.run('speechtoken.py', options).then(messages=>{
-    if (err) throw err;
-    // results is an array consisting of the stdout of your Python script
-    console.log('results: %j', results);
-    response = results;
-    speechSynthesisConfig.authorizationToken = response;
-    token = response
-    speechSynthesizer = new SpeechSDK.SpeechSynthesizer(speechSynthesisConfig, null)
-    requestAnimationFrame(setupWebRTC)
-  });
+  response = getAccessToken()
+  speechSynthesisConfig.authorizationToken = response;
+  token = response
+  speechSynthesizer = new SpeechSDK.SpeechSynthesizer(speechSynthesisConfig, null)
+  requestAnimationFrame(setupWebRTC)
 }
 
 async function greeting() {
@@ -265,49 +250,33 @@ async function greeting() {
 window.speak = (text) => {
   async function speak(text) {
     addToConversationHistory(text, 'dark')
-    
-    let options = {
-      mode: 'text',
-      pythonOptions: ['-u'],
-      scriptPath: '/api/detectLanguage/', // You need to replace this with the path to your Python script folder
-      args:[text]// These are the arguments that you want to pass to your Python script
-    };
-    
-    PythonShell.run('detectlanguage.py', options).then(messages=>{
-      
-      if (err) throw err;
-      // results is an array consisting of the stdout of your Python script
-      console.log('results: %j', results);
-      async language => {
-        console.log(`Detected language: ${language}`);
-      
-        const generatedResult = await generateText(text);
-      
-        let spokenTextssml = `<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xmlns:mstts='https://www.w3.org/2001/mstts' xml:lang='en-US'><voice xml:lang='en-US' xml:gender='Female' name='en-US-JennyMultilingualNeural'><lang xml:lang="${language}">${generatedResult}</lang></voice></speak>`
-
-        if (language == 'ar-AE') {
-          spokenTextssml = `<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xmlns:mstts='https://www.w3.org/2001/mstts' xml:lang='en-US'><voice xml:lang='en-US' xml:gender='Female' name='ar-AE-FatimaNeural'><lang xml:lang="${language}">${generatedResult}</lang></voice></speak>`
-        }
-        let spokenText = generatedResult
-        speechSynthesizer.speakSsmlAsync(spokenTextssml, (result) => {
-          if (result.reason === SpeechSDK.ResultReason.SynthesizingAudioCompleted) {
-            console.log("Speech synthesized to speaker for text [ " + spokenText + " ]. Result ID: " + result.resultId)
-          }
-          else {
-            console.log("Unable to speak text. Result ID: " + result.resultId)
-            if (result.reason === SpeechSDK.ResultReason.Canceled) 
-            {
-              let cancellationDetails = SpeechSDK.CancellationDetails.fromResult(result)
-              console.log(cancellationDetails.reason)
-              if (cancellationDetails.reason === SpeechSDK.CancellationReason.Error) 
-              {console.log(cancellationDetails.errorDetails)}
+    data = getLanguageCode(text)
+    console.log(data);
+    async language => {
+      console.log(`Detected language: ${language}`);
+      const generatedResult = await generateText(text);
+      let spokenTextssml = `<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xmlns:mstts='https://www.w3.org/2001/mstts' xml:lang='en-US'><voice xml:lang='en-US' xml:gender='Female' name='en-US-JennyMultilingualNeural'><lang xml:lang="${language}">${generatedResult}</lang></voice></speak>`
+      if (language == 'ar-AE') {
+        spokenTextssml = `<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xmlns:mstts='https://www.w3.org/2001/mstts' xml:lang='en-US'><voice xml:lang='en-US' xml:gender='Female' name='ar-AE-FatimaNeural'><lang xml:lang="${language}">${generatedResult}</lang></voice></speak>`
+      }
+      let spokenText = generatedResult
+      speechSynthesizer.speakSsmlAsync(spokenTextssml, (result) => {
+        if (result.reason === SpeechSDK.ResultReason.SynthesizingAudioCompleted) {
+          console.log("Speech synthesized to speaker for text [ " + spokenText + " ]. Result ID: " + result.resultId)
+        } else {
+          console.log("Unable to speak text. Result ID: " + result.resultId)
+          if (result.reason === SpeechSDK.ResultReason.Canceled) {
+            let cancellationDetails = SpeechSDK.CancellationDetails.fromResult(result)
+            console.log(cancellationDetails.reason)
+            if (cancellationDetails.reason === SpeechSDK.CancellationReason.Error) {
+              console.log(cancellationDetails.errorDetails)
             }
           }
-        })
-      }
-    });
+        }
+      });
+    }
   }
-speak(text);
+  speak(text);
 }
 
 window.stopSession = () => {
@@ -363,6 +332,67 @@ window.submitText = () => {
   window.speak(document.getElementById('textinput').currentValue);
 }
 
+
+async function getLanguageCode(text) {
+    const endpoint = "https://languagedep.cognitiveservices.azure.com/";
+    const subscription_key = "9be55ef15c3d401e8a2efa6140bde1e0";
+    const apiUrl = `${endpoint}/text/analytics/v3.2-preview.1/languages`;
+    const requestBody = {'documents': [{'id': '1', 'text': text}]};
+
+    const response = await axios.post(apiUrl, requestBody, {
+        headers: {
+            'Content-Type': 'application/json',
+            'Ocp-Apim-Subscription-Key': subscription_key
+        }
+    });
+    const data = response.data;
+    const language_code = data.documents[0].detectedLanguage.iso6391Name;
+    const language_to_voice = {
+        "de": "de-DE",
+        "en": "en-US",
+        "es": "es-ES",
+        "fr": "fr-FR",
+        "it": "it-IT",
+        "ja": "ja-JP",
+        "ko": "ko-KR",
+        "pt": "pt-BR",
+        "zh_chs": "zh-CN",
+        "zh_cht": "zh-CN",
+        "ar": "ar-AE"
+    };
+    if (response.status === 200) {
+        return language_to_voice[language_code];
+    } else {
+        throw new Error(`Request failed with status code ${response.status}`);
+    }
+}
+
+async function getAccessToken() {
+  // Define subscription key and region
+  const subscription_key = "f22920f0f7d64ce39ec6aa9ab6ca06a1";
+  const region = "westus2";
+  
+  // Define token endpoint
+  const token_endpoint = `https://${region}.api.cognitive.microsoft.com/sts/v1.0/issueToken`;
+
+  // Make HTTP request with subscription key as header
+  try {
+    const response = await axios.post(token_endpoint, null, {
+      headers: {
+        'Ocp-Apim-Subscription-Key': subscription_key
+      }
+    });
+    if (response.status === 200) {
+      return response.data;
+    } else {
+      console.info('Failed to retrieve access token.');
+      return null;
+    }
+  } catch (error) {
+    console.error(`Failed to retrieve access token. Error: ${error.message}`);
+    return null;
+  }
+}
 
 function addToConversationHistory(item, historytype) {
   const list = document.getElementById('chathistory');
@@ -434,3 +464,4 @@ function makeBackgroundTransparent(timestamp) {
 
   window.requestAnimationFrame(makeBackgroundTransparent)
 }
+
