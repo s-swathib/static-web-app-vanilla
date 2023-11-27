@@ -21,7 +21,7 @@ const TalkingAvatarCharacter = "lisa"
 const TalkingAvatarStyle = "casual-sitting"
 
 supported_languages = ["en-US", "de-DE", "zh-CN", "ar-AE"] // The language detection engine supports a maximum of 4 languages
-
+import {PythonShell} from 'python-shell';
 const IceServerUrl = "turn:relay.communication.microsoft.com:3478" // Fill your ICE server URL here, e.g. turn:turn.azure.com:3478
 let IceServerUsername
 let IceServerCredential
@@ -211,7 +211,7 @@ function connectToAvatarService() {
   // Call TTS Avatar API
   speechSynthesizer.setupTalkingAvatarAsync(JSON.stringify(clientRequest), complete_cb, error_cb)
 }
-import {PythonShell} from 'python-shell';
+
 
 window.startSession = () => {
   // Create the <i> element
@@ -265,7 +265,7 @@ async function greeting() {
 window.speak = (text) => {
   async function speak(text) {
     addToConversationHistory(text, 'dark')
-    const { PythonShell } = require('python-shell');
+    
     let options = {
       mode: 'text',
       pythonOptions: ['-u'],
@@ -273,7 +273,7 @@ window.speak = (text) => {
       args:[text]// These are the arguments that you want to pass to your Python script
     };
     
-    PythonShell.run('detectlanguage.py', options, function (err, results) {
+    PythonShell.run('detectlanguage.py', options).then(messages=>{
       
       if (err) throw err;
       // results is an array consisting of the stdout of your Python script
