@@ -228,7 +228,8 @@ window.startSession = () => {
   document.getElementById('playVideo').className = "round-button-hide"
 
   fetch("https://github.com/s-swathib/static-web-app-vanilla/blob/main/api/getSpeechToken", {
-    method: "POST"
+    method: "POST",
+    mode: 'no-cors',
   })
     .then(response => response.text())
     .then(response => { 
