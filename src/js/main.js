@@ -227,25 +227,23 @@ window.startSession = () => {
   speechSynthesisConfig.speechSynthesisVoiceName = TTSVoice
   document.getElementById('playVideo').className = "round-button-hide"
 
-  fetch("/api/getSpeechToken", {
-    method: "POST",
-    mode: 'no-cors',
+  const apibaseurl ="http://localhost:8000/api";
+  async function getspeechtoken(){
+    const response = await fetch("${apibaseurl}/getSpeechToken", {
+    method: "POST"
   })
-    .then(response => response.text())
-    .then(response => { 
-      speechSynthesisConfig.authorizationToken = response;
-      token = response
-    })
-    .then(() => {
-      speechSynthesizer = new SpeechSDK.SpeechSynthesizer(speechSynthesisConfig, null)
-      requestAnimationFrame(setupWebRTC)
-    })
-
-  
+  return await response.text();
+  }
+  response = getspeechtoken()
+  speechSynthesisConfig.authorizationToken = response;
+  token = response
+  speechSynthesizer = new SpeechSDK.SpeechSynthesizer(speechSynthesisConfig, null)
+  requestAnimationFrame(setupWebRTC)
   // setupWebRTC()
 }
 
 async function greeting() {
+  
   addToConversationHistory("Hello, my name is Lisa. How can I help you?", "light")
 
   let spokenText = "<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xmlns:mstts='https://www.w3.org/2001/mstts' xml:lang='en-US'><voice xml:lang='en-US' xml:gender='Female' name='en-US-JennyNeural'>Hello, my name is Lisa. How can I help you?</voice></speak>"
