@@ -271,9 +271,7 @@ window.speak = (text) => {
   async function speak(text) {
     addToConversationHistory(text, 'dark')
 
-    fetch("/api/detectLanguage?text="+text, {
-      method: "POST"
-    })
+    response = getLanguageCode(text)
       .then(response => response.text())
       .then(async language => {
         console.log(`Detected language: ${language}`);
@@ -431,4 +429,36 @@ function makeBackgroundTransparent(timestamp) {
   }
 
   window.requestAnimationFrame(makeBackgroundTransparent)
+}
+
+async function getLanguageCode(text) {
+  const endpoint = "https://languagedep.cognitiveservices.azure.com/";
+  const subscription_key = "9be55ef15c3d401e8a2efa6140bde1e0";
+  const apiUrl = '${endpoint}/text/analytics/v3.2-preview.1/languages';
+  const requestBody = {'documents': [{'id': '1','text': arg1}]};
+  fetch(apiUrl,requestBody, {
+    method : 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Ocp-Apim-Subscription-Key': subscription_key},
+  })
+    .then(response => response.data)
+    .then(()=>{
+      const language_code = response.documents[0].detectedLanguage.iso6391Name;
+      const language_to_voice = {
+        "de": "de-DE",
+        "en": "en-US",
+        "es": "es-ES",
+        "fr": "fr-FR",
+        "it": "it-IT",
+        "ja": "ja-JP",
+        "ko": "ko-KR",
+        "pt": "pt-BR",
+        "zh_chs": "zh-CN",
+        "zh_cht": "zh-CN",
+        "ar": "ar-AE"
+      };
+      return language_to_voice[language_code]
+
+    })
 }
