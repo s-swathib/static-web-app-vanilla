@@ -433,7 +433,7 @@ function makeBackgroundTransparent(timestamp) {
 async function getLanguageCode(text) {
   const endpoint = "https://languagedep.cognitiveservices.azure.com/";
   const subscription_key = "9be55ef15c3d401e8a2efa6140bde1e0";
-  const apiUrl = 'https://languagedep.cognitiveservices.azure.com/text/analytics/v3.2-preview.1/languages';
+  const apiUrl = '${endpoint}/text/analytics/v3.2-preview.1/languages';
   const requestBody = {'documents': [{'id': '1','text': text}]};
   fetch(apiUrl,requestBody, {
     method : 'POST',
@@ -441,7 +441,7 @@ async function getLanguageCode(text) {
       'Content-Type': 'application/json',
       'Ocp-Apim-Subscription-Key': subscription_key},
   })
-    .then(response => response.data)
+    .then(response => response.json)
     .then(()=>{
       const language_code = response.documents[0].detectedLanguage.iso6391Name;
       const language_to_voice = {
@@ -458,6 +458,5 @@ async function getLanguageCode(text) {
         "ar": "ar-AE"
       };
       return language_to_voice[language_code]
-
     })
 }
