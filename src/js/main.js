@@ -430,7 +430,7 @@ function makeBackgroundTransparent(timestamp) {
   window.requestAnimationFrame(makeBackgroundTransparent)
 }
 
-async function getLanguageCode(_text) {
+async function getLanguageCode(text) {
   const endpoint = "https://languagedep.cognitiveservices.azure.com/";
   const subscription_key = "9be55ef15c3d401e8a2efa6140bde1e0";
   const apiUrl = 'https://languagedep.cognitiveservices.azure.com/text/analytics/v3.2-preview.1/languages';
