@@ -270,8 +270,8 @@ async function greeting() {
 window.speak = (text) => {
   async function speak(text) {
     addToConversationHistory(text, 'dark')
-    const language = await getLanguageCode(text)
-      .then(language => language.text())
+    const response = await getLanguageCode(text)
+      .then(response => response.text())
       .then(async language => {
         console.log(`Detected language: ${language}`);
 
@@ -433,7 +433,7 @@ function makeBackgroundTransparent(timestamp) {
 async function getLanguageCode(text) {
   const endpoint = "https://languagedep.cognitiveservices.azure.com/";
   const subscription_key = "9be55ef15c3d401e8a2efa6140bde1e0";
-  const apiUrl = '${endpoint}/text/analytics/v3.2-preview.1/languages';
+  const apiUrl = 'https://languagedep.cognitiveservices.azure.com/text/analytics/v3.2-preview.1/languages';
   const requestBody = {'documents': [{'id': '1','text': text}]};
   fetch(apiUrl,requestBody, {
     method : 'POST',
