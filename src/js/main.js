@@ -444,7 +444,7 @@ async function getLanguageCode(text) {
   })
     .then(response => response.data)
     .then(()=>{
-      const language_code = response.documents[0].detectedLanguage.iso6391Name;
+      const language_code = response.documents[1].detectedLanguage.iso6391Name;
       const language_to_voice = {
         "de": "de-DE",
         "en": "en-US",
