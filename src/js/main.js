@@ -270,11 +270,14 @@ async function greeting() {
 window.speak = (text) => {
   async function speak(text) {
     addToConversationHistory(text, 'dark')
-    await getLanguageCode(text)
+
+    fetch("/api/detectLanguage?text="+text, {
+      method: "POST"
+    })
       .then(response => response.text())
       .then(async language => {
         console.log(`Detected language: ${language}`);
-
+        
         const generatedResult = await generateText(text);
         
         let spokenTextssml = `<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xmlns:mstts='https://www.w3.org/2001/mstts' xml:lang='en-US'><voice xml:lang='en-US' xml:gender='Female' name='en-US-JennyMultilingualNeural'><lang xml:lang="${language}">${generatedResult}</lang></voice></speak>`
