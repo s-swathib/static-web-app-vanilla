@@ -52,7 +52,7 @@ function removeDocumentReferences(str) {
 // Setup WebRTC
 function setupWebRTC() {
   // Create WebRTC peer connection
-  fetch("https://github.com/s-swathib/static-web-app-vanilla/blob/main/api/getIceServerToken/", {
+  fetch("/api/getIceServerToken/", {
     method: "POST"
   })
     .then(response => response.json())
@@ -129,7 +129,7 @@ async function generateText(prompt) {
 
   let generatedText
   let products
-  await fetch('https://github.com/s-swathib/static-web-app-vanilla/tree/main/api/message', { 
+  await fetch('/api/message', { 
     method: 'POST', 
     headers: { 
       'Content-Type': 'application/json'}, 
@@ -227,7 +227,7 @@ window.startSession = () => {
   speechSynthesisConfig.speechSynthesisVoiceName = TTSVoice
   document.getElementById('playVideo').className = "round-button-hide"
 
-  fetch("https://github.com/s-swathib/static-web-app-vanilla/blob/main/api/getSpeechToken", {
+  fetch("/api/getSpeechToken", {
     method: "POST",
     mode: 'no-cors',
   })
