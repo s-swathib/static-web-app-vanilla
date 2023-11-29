@@ -271,39 +271,38 @@ window.speak = (text) => {
   async function speak(text) {
     addToConversationHistory(text, 'dark')
 
-    fetch("/api/detectLanguage?text="+text, {
-      method: "POST"
-    })
-      .then(response => response.text())
-      .then(async language => {
-        console.log(`Detected language: ${language}`);
+    //fetch("/api/detectLanguage?text="+text, {
+    //  method: "POST"
+    //})
+      //.then(response => response.text())
+      //.then(async language => {
+        //console.log(`Detected language: ${language}`);
+    language = 'ar-AE'
+    const generatedResult = await generateText(text);
         
-        const generatedResult = await generateText(text);
-        
-        let spokenTextssml = `<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xmlns:mstts='https://www.w3.org/2001/mstts' xml:lang='en-US'><voice xml:lang='en-US' xml:gender='Female' name='en-US-JennyMultilingualNeural'><lang xml:lang="${language}">${generatedResult}</lang></voice></speak>`
+    let spokenTextssml = `<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xmlns:mstts='https://www.w3.org/2001/mstts' xml:lang='en-US'><voice xml:lang='en-US' xml:gender='Female' name='en-US-JennyMultilingualNeural'><lang xml:lang="${language}">${generatedResult}</lang></voice></speak>`
 
-        if (language == 'ar-AE') {
-          spokenTextssml = `<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xmlns:mstts='https://www.w3.org/2001/mstts' xml:lang='en-US'><voice xml:lang='en-US' xml:gender='Female' name='ar-AE-FatimaNeural'><lang xml:lang="${language}">${generatedResult}</lang></voice></speak>`
-        }
-        let spokenText = generatedResult
-        speechSynthesizer.speakSsmlAsync(spokenTextssml, (result) => {
-          if (result.reason === SpeechSDK.ResultReason.SynthesizingAudioCompleted) {
-            console.log("Speech synthesized to speaker for text [ " + spokenText + " ]. Result ID: " + result.resultId)
-          } else {
-            console.log("Unable to speak text. Result ID: " + result.resultId)
-            if (result.reason === SpeechSDK.ResultReason.Canceled) {
-              let cancellationDetails = SpeechSDK.CancellationDetails.fromResult(result)
-              console.log(cancellationDetails.reason)
-              if (cancellationDetails.reason === SpeechSDK.CancellationReason.Error) {
-                console.log(cancellationDetails.errorDetails)
-              }
-            }
+    if (language == 'ar-AE') {
+      spokenTextssml = `<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xmlns:mstts='https://www.w3.org/2001/mstts' xml:lang='en-US'><voice xml:lang='en-US' xml:gender='Female' name='ar-AE-FatimaNeural'><lang xml:lang="${language}">${generatedResult}</lang></voice></speak>`
+    }
+    let spokenText = generatedResult
+    speechSynthesizer.speakSsmlAsync(spokenTextssml, (result) => {
+      if (result.reason === SpeechSDK.ResultReason.SynthesizingAudioCompleted) {
+        console.log("Speech synthesized to speaker for text [ " + spokenText + " ]. Result ID: " + result.resultId)
+      } else {
+        console.log("Unable to speak text. Result ID: " + result.resultId)
+        if (result.reason === SpeechSDK.ResultReason.Canceled) {
+          let cancellationDetails = SpeechSDK.CancellationDetails.fromResult(result)
+          console.log(cancellationDetails.reason)
+          if (cancellationDetails.reason === SpeechSDK.CancellationReason.Error) {
+            console.log(cancellationDetails.errorDetails)
           }
-        })
-      })
-      .catch(error => {
-        console.error('Error:', error);
-      });
+        }
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+    });
   }
   speak(text);
 }
