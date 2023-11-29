@@ -235,7 +235,7 @@ window.startSession = () => {
       'Content-Type': 'application/json',
       'Content-Length': '0',},
   });
-  const text = response.text();
+  const text = await response.text();
   console.log(text);
   speechSynthesisConfig.authorizationToken = text;
   token = text
