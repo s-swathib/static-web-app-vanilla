@@ -270,8 +270,8 @@ async function greeting() {
 window.speak = (text) => {
   async function speak(text) {
     addToConversationHistory(text, 'dark')
-
-    response = getLanguageCode(text)
+    let line = text;
+    response = getLanguageCode(line)
       .then(response => response.text())
       .then(async language => {
         console.log(`Detected language: ${language}`);
@@ -444,7 +444,7 @@ async function getLanguageCode(_text) {
   })
     .then(response => response.data)
     .then(()=>{
-      const language_code = response.documents[1].detectedLanguage.iso6391Name;
+      const language_code = response.documents[0].detectedLanguage.iso6391Name;
       const language_to_voice = {
         "de": "de-DE",
         "en": "en-US",
