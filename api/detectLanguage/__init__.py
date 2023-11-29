@@ -2,21 +2,21 @@ import logging
 import requests
 import json
 import os
-import sys
 
 import azure.functions as func
 
-endpoint = "https://languagedep.cognitiveservices.azure.com/"
-subscription_key = "9be55ef15c3d401e8a2efa6140bde1e0"
+endpoint = os.getenv("TEXT_ANALYTICS_ENDPOINT")
+subscription_key = os.getenv("TEXT_ANALYTICS_KEY")
 
-def get_language_code(arg1):
+def main(req: func.HttpRequest) -> func.HttpResponse:
     apiUrl = f'{endpoint}/text/analytics/v3.2-preview.1/languages'
+    text = req.params.get('text')
 
     requestBody = {
         'documents': [
         {
             'id': '1',
-            'text': arg1
+            'text': text
         }
         ]
     }
@@ -33,33 +33,21 @@ def get_language_code(arg1):
     data = response.json()
     language_code = data['documents'][0]['detectedLanguage']['iso6391Name']
 
+    language_to_voice = {
+        "de": "de-DE",
+        "en": "en-US",
+        "es": "es-ES",
+        "fr": "fr-FR",
+        "it": "it-IT",
+        "ja": "ja-JP",
+        "ko": "ko-KR",
+        "pt": "pt-BR",
+        "zh_chs": "zh-CN",
+        "zh_cht": "zh-CN",
+        "ar": "ar-AE"
+    }
+
     if response.status_code == 200:
-        return language_code
+        return func.HttpResponse(language_to_voice[language_code], status_code=200)
     else:
-        raise Exception(f"Request failed with status code {response.status_code}")
-
-def main(arg1: str) -> str:
-    try:
-        language_code = get_language_code(arg1)
-
-        language_to_voice = {
-            "de": "de-DE",
-            "en": "en-US",
-            "es": "es-ES",
-            "fr": "fr-FR",
-            "it": "it-IT",
-            "ja": "ja-JP",
-            "ko": "ko-KR",
-            "pt": "pt-BR",
-            "zh_chs": "zh-CN",
-            "zh_cht": "zh-CN",
-            "ar": "ar-AE"
-        }
-
-        return language_to_voice[language_code]
-    except Exception as e:
-        print(e)
-        return ""
-    
-if __name__== "__main__":
-    main(sys.argv[1])
+        return func.HttpResponse(response.status_code)
