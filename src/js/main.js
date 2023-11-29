@@ -235,10 +235,10 @@ window.startSession = () => {
       'Content-Type': 'application/json',
       'Content-Length': '0',},
   });
-  const response = response.text();
-  console.log(response);
-  speechSynthesisConfig.authorizationToken = response;
-  token = response
+  const text = response.text();
+  console.log(text);
+  speechSynthesisConfig.authorizationToken = text;
+  token = text
   speechSynthesizer = new SpeechSDK.SpeechSynthesizer(speechSynthesisConfig, null)
   requestAnimationFrame(setupWebRTC)
   // setupWebRTC()
