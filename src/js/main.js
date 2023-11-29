@@ -228,14 +228,14 @@ window.startSession = () => {
   speechSynthesisConfig.speechSynthesisVoiceName = TTSVoice
   document.getElementById('playVideo').className = "round-button-hide"
   
-  const response = await fetch(url, {
+  const response = fetch(url, {
     method: 'POST',
     headers: {
       'Ocp-Apim-Subscription-Key':'f22920f0f7d64ce39ec6aa9ab6ca06a1',
       'Content-Type': 'application/json',
       'Content-Length': '0',},
   });
-  const response = await response.text();
+  const response = response.text();
   console.log(response);
   speechSynthesisConfig.authorizationToken = response;
   token = response
