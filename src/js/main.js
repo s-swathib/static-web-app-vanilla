@@ -130,7 +130,7 @@ async function generateText(prompt) {
   let generatedText
   let products
   await fetch('/api/message', { 
-    method: 'POST', 
+    method: 'GET', 
     headers: { 
       'Content-Type': 'application/json'}, 
       body: JSON.stringify(messages) })
