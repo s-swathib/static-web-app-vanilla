@@ -13,6 +13,7 @@ var system_prompt = `You are an AI assistant focused on delivering brief product
 `
 
 const TTSVoice = "en-US-JennyMultilingualNeural" // Update this value if you want to use a different voice
+const url = 'https://westus2.api.cognitive.microsoft.com/sts/v1.0/issueToken';
 
 const CogSvcRegion = "westus2" // Fill your Azure cognitive services region here, e.g. westus2
 
@@ -53,7 +54,7 @@ function removeDocumentReferences(str) {
 function setupWebRTC() {
   // Create WebRTC peer connection
   fetch("/api/getIceServerToken/", {
-    method: "POST"
+    method: 'POST'
   })
     .then(response => response.json())
     .then(response => { 
@@ -226,15 +227,16 @@ window.startSession = () => {
 
   speechSynthesisConfig.speechSynthesisVoiceName = TTSVoice
   document.getElementById('playVideo').className = "round-button-hide"
-
-  const apibaseurl ="http://localhost:8000/api";
-  async function getspeechtoken(){
-    const response = await fetch("${apibaseurl}/getSpeechToken", {
-    method: "POST"
-  })
-  return await response.text();
-  }
-  response = getspeechtoken()
+  
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Ocp-Apim-Subscription-Key':'f22920f0f7d64ce39ec6aa9ab6ca06a1',
+      'Content-Type': 'application/json',
+      'Content-Length': '0',},
+  });
+  const response = await response.text();
+  console.log(response);
   speechSynthesisConfig.authorizationToken = response;
   token = response
   speechSynthesizer = new SpeechSDK.SpeechSynthesizer(speechSynthesisConfig, null)
