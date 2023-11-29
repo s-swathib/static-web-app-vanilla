@@ -271,7 +271,7 @@ window.speak = (text) => {
   async function speak(text) {
     addToConversationHistory(text, 'dark')
     const language = await getLanguageCode(text)
-      //.then(language => language.text())
+      .then(language => language)
       .then(async language => {
         console.log(`Detected language: ${language}`);
 
