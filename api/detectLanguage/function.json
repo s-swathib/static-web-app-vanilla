@@ -6,12 +6,11 @@
       "direction": "in",
       "name": "req",
       "methods": [
-        "get",
-        "post"
+        "POST"
       ]
     },
     {
-      "type": "http",
+      "type": "https",
       "direction": "out",
       "name": "$return"
     }
