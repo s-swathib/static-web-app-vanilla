@@ -228,19 +228,22 @@ window.startSession = () => {
   speechSynthesisConfig.speechSynthesisVoiceName = TTSVoice
   document.getElementById('playVideo').className = "round-button-hide"
   
-  const response = fetch(url, {
+  fetch(url, {
     method: 'POST',
     headers: {
       'Ocp-Apim-Subscription-Key':'f22920f0f7d64ce39ec6aa9ab6ca06a1',
       'Content-Type': 'application/json',
       'Content-Length': '0',},
-  });
-  const text = await response.text();
-  console.log(text);
-  speechSynthesisConfig.authorizationToken = text;
-  token = text
-  speechSynthesizer = new SpeechSDK.SpeechSynthesizer(speechSynthesisConfig, null)
-  requestAnimationFrame(setupWebRTC)
+  })
+    .then(response => response.text())
+    .then(response => { 
+      speechSynthesisConfig.authorizationToken = response;
+      token = response
+    })
+    .then(() => {
+      speechSynthesizer = new SpeechSDK.SpeechSynthesizer(speechSynthesisConfig, null)
+      requestAnimationFrame(setupWebRTC)
+    })
   // setupWebRTC()
 }
 
