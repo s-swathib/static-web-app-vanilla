@@ -289,7 +289,7 @@ window.startSession = () => {
   const TalkingAvatarCharacter = "lisa"
   const TalkingAvatarStyle = "casual-sitting"
   const avatarConfig = new SpeechSDK.AvatarConfig(TalkingAvatarCharacter, TalkingAvatarStyle)
-  avatarConfig.customized = document.getElementById('customizedAvatar').checked
+  //avatarConfig.customized = document.getElementById('customizedAvatar').checked
   avatarSynthesizer = new SpeechSDK.AvatarSynthesizer(speechSynthesisConfig, avatarConfig)
   avatarSynthesizer.avatarEventReceived = function (s, e) {
       var offsetMessage = ", offset from session start: " + e.offset / 10000 + "ms."
