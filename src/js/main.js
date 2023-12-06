@@ -283,12 +283,12 @@ window.startSession = () => {
   }
 
   const speechSynthesisConfig = SpeechSDK.SpeechConfig.fromSubscription(cogSvcSubKey, CogSvcRegion)
-  speechSynthesisConfig.endpointId = document.getElementById('customVoiceEndpointId').value
-  speechSynthesisConfig.speechSynthesisVoiceName = document.getElementById('ttsVoice').value
+  //speechSynthesisConfig.endpointId = document.getElementById('customVoiceEndpointId').value
+  speechSynthesisConfig.speechSynthesisVoiceName = ttsVoice
 
 
   const avatarConfig = new SpeechSDK.AvatarConfig(TalkingAvatarCharacter, TalkingAvatarStyle)
-  avatarConfig.customized = document.getElementById('customizedAvatar').checked
+  //avatarConfig.customized = document.getElementById('customizedAvatar').checked
   avatarSynthesizer = new SpeechSDK.AvatarSynthesizer(speechSynthesisConfig, avatarConfig)
   avatarSynthesizer.avatarEventReceived = function (s, e) {
       var offsetMessage = ", offset from session start: " + e.offset / 10000 + "ms."
