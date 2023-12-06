@@ -287,9 +287,9 @@ window.startSession = () => {
   speechSynthesisConfig.speechSynthesisVoiceName = ttsVoice
 
 
-  const avatarConfig = new SpeechSDK.AvatarConfig(TalkingAvatarCharacter, TalkingAvatarStyle)
+  const avatarConfig = SpeechSDK.AvatarConfig(TalkingAvatarCharacter, TalkingAvatarStyle)
   //avatarConfig.customized = document.getElementById('customizedAvatar').checked
-  avatarSynthesizer = new SpeechSDK.AvatarSynthesizer(speechSynthesisConfig, avatarConfig)
+  avatarSynthesizer = SpeechSDK.AvatarSynthesizer(speechSynthesisConfig, avatarConfig)
   avatarSynthesizer.avatarEventReceived = function (s, e) {
       var offsetMessage = ", offset from session start: " + e.offset / 10000 + "ms."
       if (e.offset === 0) {
