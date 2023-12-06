@@ -31,10 +31,6 @@ const azureCogSearchEndpoint = "https://static-webapp-avatar.search.windows.net"
 const azureCogSearchApiKey = "GQemWa1Jk2KSO89crwqYbiaHFVh1OqVhMhrfYGvAfdAzSeCy37rz"
 const azureCogSearchIndexName = "products"
 
-// This is the only avatar which supports live streaming so far, please don't modify
-const TalkingAvatarCharacter = "lisa"
-const TalkingAvatarStyle = "casual-sitting"
-
 supported_languages = ["en-US", "de-DE", "zh-CN", "ar-AE"] // The language detection engine supports a maximum of 4 languages
 
 const BackgroundColor = '#FFFFFFFF'
@@ -286,10 +282,12 @@ window.startSession = () => {
   //speechSynthesisConfig.endpointId = document.getElementById('customVoiceEndpointId').value
   speechSynthesisConfig.speechSynthesisVoiceName = ttsVoice
 
-
-  const avatarConfig = SpeechSDK.AvatarConfig(TalkingAvatarCharacter, TalkingAvatarStyle)
+  // This is the only avatar which supports live streaming so far, please don't modify
+  const TalkingAvatarCharacter = "lisa"
+  const TalkingAvatarStyle = "casual-sitting"
+  const avatarConfig = new SpeechSDK.AvatarConfig(TalkingAvatarCharacter, TalkingAvatarStyle)
   //avatarConfig.customized = document.getElementById('customizedAvatar').checked
-  avatarSynthesizer = SpeechSDK.AvatarSynthesizer(speechSynthesisConfig, avatarConfig)
+  avatarSynthesizer = new SpeechSDK.AvatarSynthesizer(speechSynthesisConfig, avatarConfig)
   avatarSynthesizer.avatarEventReceived = function (s, e) {
       var offsetMessage = ", offset from session start: " + e.offset / 10000 + "ms."
       if (e.offset === 0) {
