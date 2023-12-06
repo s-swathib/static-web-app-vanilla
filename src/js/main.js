@@ -37,7 +37,7 @@ const BackgroundColor = '#FFFFFFFF'
 
 let token
 
-///const speechSynthesisConfig = SpeechSDK.SpeechConfig.fromEndpoint(new URL("wss://{region}.tts.speech.microsoft.com/cognitiveservices/websocket/v1?enableTalkingAvatar=true".replace("{region}", CogSvcRegion)))
+const speechSynthesisConfig = SpeechSDK.SpeechConfig.fromEndpoint(new URL("wss://{region}.tts.speech.microsoft.com/cognitiveservices/websocket/v1?enableTalkingAvatar=true".replace("{region}", CogSvcRegion)))
 
 // Global objects
 var speechRecognizer
@@ -272,7 +272,8 @@ function connectToAvatarService() {
 }
 
 window.startSession = () => {
-
+  //const cogSvcRegion = document.getElementById('region').value
+  //const cogSvcSubKey = document.getElementById('subscriptionKey').value
   if (cogSvcSubKey === '') {
       alert('Please fill in the subscription key of your speech resource.')
       return
@@ -282,11 +283,13 @@ window.startSession = () => {
   //speechSynthesisConfig.endpointId = document.getElementById('customVoiceEndpointId').value
   speechSynthesisConfig.speechSynthesisVoiceName = ttsVoice
 
+  //const talkingAvatarCharacter = document.getElementById('talkingAvatarCharacter').value
+  //const talkingAvatarStyle = document.getElementById('talkingAvatarStyle').value
   // This is the only avatar which supports live streaming so far, please don't modify
   const TalkingAvatarCharacter = "lisa"
   const TalkingAvatarStyle = "casual-sitting"
   const avatarConfig = new SpeechSDK.AvatarConfig(TalkingAvatarCharacter, TalkingAvatarStyle)
-  //avatarConfig.customized = document.getElementById('customizedAvatar').checked
+  avatarConfig.customized = document.getElementById('customizedAvatar').checked
   avatarSynthesizer = new SpeechSDK.AvatarSynthesizer(speechSynthesisConfig, avatarConfig)
   avatarSynthesizer.avatarEventReceived = function (s, e) {
       var offsetMessage = ", offset from session start: " + e.offset / 10000 + "ms."
@@ -300,14 +303,19 @@ window.startSession = () => {
   const speechRecognitionConfig = SpeechSDK.SpeechConfig.fromSubscription(cogSvcSubKey, cogSvcRegion)
   speechRecognitionConfig.speechRecognitionLanguage = document.getElementById('sttLocale').value
   speechRecognizer = new SpeechSDK.SpeechRecognizer(speechRecognitionConfig, SpeechSDK.AudioConfig.fromDefaultMicrophoneInput())
-  
+
+  //const azureOpenAIEndpoint = document.getElementById('azureOpenAIEndpoint').value
+  //const azureOpenAIApiKey = document.getElementById('azureOpenAIApiKey').value
+  //const azureOpenAIDeploymentName = document.getElementById('azureOpenAIDeploymentName').value
   if (azureOpenAIEndpoint === '' || azureOpenAIApiKey === '' || azureOpenAIDeploymentName === '') {
       alert('Please fill in the Azure OpenAI endpoint, API key and deployment name.')
       return
   }
 
   dataSources = []
-
+  //const azureCogSearchEndpoint = document.getElementById('azureCogSearchEndpoint').value
+  //const azureCogSearchApiKey = document.getElementById('azureCogSearchApiKey').value
+  //const azureCogSearchIndexName = document.getElementById('azureCogSearchIndexName').value
   if (azureCogSearchEndpoint === "" || azureCogSearchApiKey === "" || azureCogSearchIndexName === "") {
     alert('Please fill in the Azure Cognitive Search endpoint, API key and index name.')
     return
@@ -316,7 +324,10 @@ window.startSession = () => {
   }
 
   initMessages()
-  
+
+  //const iceServerUrl = document.getElementById('iceServerUrl').value
+  //const iceServerUsername = document.getElementById('iceServerUsername').value
+  //const iceServerCredential = document.getElementById('iceServerCredential').value
   if (IceServerUrl === '' || IceServerUsername === '' || IceServerCredential === '') {
       alert('Please fill in the ICE server URL, username and credential.')
       return
