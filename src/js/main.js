@@ -37,7 +37,7 @@ const BackgroundColor = '#FFFFFFFF'
 
 let token
 
-const speechSynthesisConfig = SpeechSDK.SpeechConfig.fromEndpoint(new URL("wss://{region}.tts.speech.microsoft.com/cognitiveservices/websocket/v1?enableTalkingAvatar=true".replace("{region}", CogSvcRegion)))
+const speechSynthesisConfig = SpeechSDK.SpeechConfig.fromEndpoint(new URL("wss://{region}.tts.speech.microsoft.com/cognitiveservices/websocket/v1?enableTalkingAvatar=true".replace("{region}", cogSvcRegion)))
 
 // Global objects
 var speechRecognizer
@@ -279,7 +279,7 @@ window.startSession = () => {
       return
   }
 
-  const speechSynthesisConfig = SpeechSDK.SpeechConfig.fromSubscription(cogSvcSubKey, CogSvcRegion)
+  const speechSynthesisConfig = SpeechSDK.SpeechConfig.fromSubscription(cogSvcSubKey, cogSvcRegion)
   //speechSynthesisConfig.endpointId = document.getElementById('customVoiceEndpointId').value
   speechSynthesisConfig.speechSynthesisVoiceName = ttsVoice
 
