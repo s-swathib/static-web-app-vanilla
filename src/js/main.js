@@ -279,11 +279,18 @@ window.startSession = () => {
       alert('Please fill in the subscription key of your speech resource.')
       return
   }
+  // Create the <i> element
+  var iconElement = document.createElement("i");
+  iconElement.className = "fa fa-spinner fa-spin";
+  iconElement.id = "loadingIcon"
+  var parentElement = document.getElementById("playVideo");
+  parentElement.prepend(iconElement);
 
   const speechSynthesisConfig = SpeechSDK.SpeechConfig.fromSubscription(cogSvcSubKey, cogSvcRegion)
   //speechSynthesisConfig.endpointId = document.getElementById('customVoiceEndpointId').value
   speechSynthesisConfig.speechSynthesisVoiceName = ttsVoice
-
+  document.getElementById('playVideo').className = "round-button-hide"
+  
   //const talkingAvatarCharacter = document.getElementById('talkingAvatarCharacter').value
   //const talkingAvatarStyle = document.getElementById('talkingAvatarStyle').value
   // This is the only avatar which supports live streaming so far, please don't modify
@@ -334,7 +341,7 @@ window.startSession = () => {
       return
   }
 
-  document.getElementById('startSession').disabled = true
+  //document.getElementById('startSession').disabled = true
   
   setupWebRTC(IceServerUrl, IceServerUsername, IceServerCredential)
 }
