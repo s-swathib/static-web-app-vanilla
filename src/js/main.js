@@ -149,7 +149,7 @@ function setDataSources(azureCogSearchEndpoint, azureCogSearchApiKey, azureCogSe
               urlField: null
           },
           inScope: true,
-          roleInformation: document.getElementById('prompt').value
+          roleInformation: system_prompt
       }
   }
 
