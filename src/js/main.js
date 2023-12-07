@@ -23,6 +23,8 @@ const cogSvcRegion = "westus2" // Fill your Azure cognitive services region here
 const IceServerUrl = "turn:relay.communication.microsoft.com:3478"
 const IceServerUsername= "BQAANmXAyIAB2iE0CgIjuChTUuN6ju7NH2owrtXiS1AAAAAMARBLzcgb+8ZGv7VTu51ROGIsrn3j1xkOsVZBYYwYaz6M5IQwJe4="
 const IceServerCredential ="33qDidv0KCP3VDTvpWZCeSaDq2Y="
+const TalkingAvatarCharacter = "lisa"
+const TalkingAvatarStyle = "casual-sitting"
 
 const cogSvcSubKey = "f22920f0f7d64ce39ec6aa9ab6ca06a1"
 const azureOpenAIEndpoint ="https://ash-aiml-workspace-aoai.openai.azure.com"
@@ -294,8 +296,7 @@ window.startSession = () => {
   //const talkingAvatarCharacter = document.getElementById('talkingAvatarCharacter').value
   //const talkingAvatarStyle = document.getElementById('talkingAvatarStyle').value
   // This is the only avatar which supports live streaming so far, please don't modify
-  const TalkingAvatarCharacter = "lisa"
-  const TalkingAvatarStyle = "casual-sitting"
+
   const avatarConfig = new SpeechSDK.AvatarConfig(TalkingAvatarCharacter, TalkingAvatarStyle)
   //avatarConfig.customized = document.getElementById('customizedAvatar').checked
   avatarSynthesizer = new SpeechSDK.AvatarSynthesizer(speechSynthesisConfig, avatarConfig)
