@@ -17,6 +17,7 @@ const log = msg => {
   document.getElementById('logging').innerHTML += msg + '<br>'
 }
 
+const sttLocale = "en-US"
 const ttsVoice = "en-US-JennyMultilingualNeural" // Update this value if you want to use a different voice
 const cogSvcRegion = "westus2" // Fill your Azure cognitive services region here, e.g. westus2
 const IceServerUrl = "turn:relay.communication.microsoft.com:3478"
@@ -301,7 +302,7 @@ window.startSession = () => {
   }
 
   const speechRecognitionConfig = SpeechSDK.SpeechConfig.fromSubscription(cogSvcSubKey, cogSvcRegion)
-  speechRecognitionConfig.speechRecognitionLanguage = document.getElementById('sttLocale').value
+  speechRecognitionConfig.speechRecognitionLanguage = sttLocale
   speechRecognizer = new SpeechSDK.SpeechRecognizer(speechRecognitionConfig, SpeechSDK.AudioConfig.fromDefaultMicrophoneInput())
 
   //const azureOpenAIEndpoint = document.getElementById('azureOpenAIEndpoint').value
