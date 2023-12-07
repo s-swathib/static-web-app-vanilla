@@ -18,7 +18,7 @@ const log = msg => {
 }
 
 const ttsVoice = "en-US-JennyMultilingualNeural" // Update this value if you want to use a different voice
-const CogSvcRegion = "westus2" // Fill your Azure cognitive services region here, e.g. westus2
+const cogSvcRegion = "westus2" // Fill your Azure cognitive services region here, e.g. westus2
 const IceServerUrl = "turn:relay.communication.microsoft.com:3478"
 const IceServerUsername= "BQAANmXAyIAB2iE0CgIjuChTUuN6ju7NH2owrtXiS1AAAAAMARBLzcgb+8ZGv7VTu51ROGIsrn3j1xkOsVZBYYwYaz6M5IQwJe4="
 const IceServerCredential ="33qDidv0KCP3VDTvpWZCeSaDq2Y="
